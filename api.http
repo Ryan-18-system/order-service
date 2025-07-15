@@ -1,11 +1,3 @@
-### Criar order
-POST http://localhost:8080/order
-Content-Type: application/json
-
-{
-  "customer_name": "João Silva",
-  "total": 199.90
-}
 
 ### Listar orders
 GET http://localhost:8080/order
