@@ -13,6 +13,7 @@ import (
 	grpcInterno "github.com/Ryan-18-system/order-service/internal/order/delivery/grpc" // Import the gRPC server package
 	pb "github.com/Ryan-18-system/order-service/internal/order/delivery/grpc/order-service/proto"
 	"github.com/Ryan-18-system/order-service/internal/order/delivery/rest"
+	"github.com/Ryan-18-system/order-service/internal/order/domain"
 	"github.com/Ryan-18-system/order-service/internal/order/repository"
 	"github.com/Ryan-18-system/order-service/internal/order/usecase"
 	"github.com/go-chi/chi"
@@ -24,7 +25,21 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	// ✅ Cria a tabela se não existir
+	err = db.AutoMigrate(&domain.Order{})
+	if err != nil {
+		log.Fatalf("failed to migrate database: %v", err)
+	}
+	var count int64
+	db.Model(&domain.Order{}).Count(&count)
+	if count == 0 {
+		db.Create(&[]domain.Order{
+			{CustomerName: "João Silva", Total: 199.90},
+			{CustomerName: "Maria Oliveira", Total: 350.50},
+			{CustomerName: "Carlos Souza", Total: 75.20},
+		})
+		log.Println("🚀 Dados de teste inseridos em 'orders'")
+	}
 	repo := repository.NewPostgresOrderRepository(db)
 	uc := usecase.NewOrderUseCase(repo)
 
